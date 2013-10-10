@@ -3,6 +3,7 @@
 ## Dual-licensed under the MIT (http://www.opensource.org/licenses/mit-license.php)
 ## and the Beerware (http://en.wikipedia.org/wiki/Beerware) license.
 
+from lcd import *
 
 #Return Value of every webservice method
 #containing a numeric error code (0 if no error occured),
@@ -14,8 +15,12 @@ class Response:
         self.ErrorCode = errorCode
         self.ErrorMessage = errorMessage
         self.ResponseData = responseData
-        
-        
+
+
+radioLcd = Lcd(1, 2, 2, 3)
+radioLcd.set("", "snakeberry", "started", "")
+radioLcd.update()
+
 ##ERRORCODES
 errNumOk = 0
 errMsgOk = ""

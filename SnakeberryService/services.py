@@ -21,9 +21,9 @@ class Services:
     def __init__(self):
         self.Services = []
         self.loadServices()
-        
+
     def loadServices(self):
-        self.Services.append(Service("Radio","/radio"))
+        self.Services.append(Service("Radio", "/radio"))
 
 #Webservice requesthandler to recieve list of services
 #Author: Bruno Hautzenberger
@@ -32,16 +32,16 @@ class ListServices(tornado.web.RequestHandler):
         rObject = None
         errNum = errNumOk
         errMsg = errMsgOk
-        
+
         try:
             services = Services()
             rObject = services
         except Exception, err:
             errMsg = str(err)
             errNum = errNumListServicesFailed
-            
+
         self.write(SnakeberryJSON().encode(Response(errNum, errMsg, rObject)))
-        
+
 #Returns the Snakeberries Mac Adress
 #Author: Bruno Hautzenberger
 class GetMac(tornado.web.RequestHandler):
@@ -49,11 +49,11 @@ class GetMac(tornado.web.RequestHandler):
         rObject = None
         errNum = errNumOk
         errMsg = errMsgOk
-        
+
         try:
             rObject = get_mac()
         except Exception, err:
             errMsg = str(err)
             errNum = errNumGetMacFailed
-            
+
         self.write(SnakeberryJSON().encode(Response(errNum, errMsg, rObject)))

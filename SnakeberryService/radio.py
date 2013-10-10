@@ -3,10 +3,12 @@
 ## Dual-licensed under the MIT (http://www.opensource.org/licenses/mit-license.php)
 ## and the Beerware (http://en.wikipedia.org/wiki/Beerware) license.
 
-import tornado.web, csv
+import tornado.web
+import csv
 from snakeberryJSON import *
 from common import *
 from mplayerInterface import *
+
 
 #Representing a radio station
 #Author: Bruno Hautzenberger
@@ -15,18 +17,18 @@ class Radio:
         self.RadioId = radioId
         self.DisplayName = displayName
         self.StreamUrl = streamUrl
-      
+
 #Representing a list of radio stations
-#Author: Bruno Hautzenberger  
+#Author: Bruno Hautzenberger
 class Radios:
     def __init__(self):
         self.Radios = []
         self.loadRadios()
-        
-    def loadRadios(self): 
+
+    def loadRadios(self):
         with open('/home/pi/snakeberry/radio.csv', 'rb') as csvfile:
             radioreader = csv.reader(csvfile, delimiter=';', quotechar='\"')
-            
+
             count = 0
             for row in radioreader:
                 self.Radios.append(Radio(str(count), row[0], row[1]))
@@ -39,14 +41,14 @@ class ListRadios(tornado.web.RequestHandler):
         rObject = None
         errNum = errNumOk
         errMsg = errMsgOk
-        
+
         try:
             radios = Radios()
             rObject = radios
         except Exception, err:
             errMsg = str(err)
             errNum = errNumListRadioStationsFailed
-            
+
         self.write(SnakeberryJSON().encode(Response(errNum, errMsg, rObject)))
 
 #Webservice requesthandler to play radio station with given id
@@ -56,17 +58,17 @@ class PlayRadio(tornado.web.RequestHandler):
         rObject = None
         errNum = errNumOk
         errMsg = errMsgOk
-        
+
         try:
             streamUrl = None
             description = None
             for radio in Radios().Radios:
-                if(radio.RadioId == radioId):
+                if (radio.RadioId == radioId):
                     streamUrl = radio.StreamUrl
                     description = radio.DisplayName
                     break
-                
-            if(streamUrl == None):
+
+            if (streamUrl == None):
                 errNum = errNumRadioStationIdDoesNotExist
                 errMsg = errMsgRadioStationIdDoesNotExist
             else:
@@ -75,23 +77,28 @@ class PlayRadio(tornado.web.RequestHandler):
         except Exception, err:
             errMsg = str(err)
             errNum = errNumPlayRadioStationFailed
-            
+        radioLcd.set_line1("Now playing")
+        radioLcd.set_line2(description)
+        radioLcd.set_line3("")
+        radioLcd.update()
         self.write(SnakeberryJSON().encode(Response(errNum, errMsg, rObject)))
 
 #Webservice requesthandler to stop radio
-#Author: Bruno Hautzenberger              
+#Author: Bruno Hautzenberger
 class StopRadio(tornado.web.RequestHandler):
     def get(self):
         rObject = None
         errNum = errNumOk
         errMsg = errMsgOk
-        
+
         try:
             Mplayer.stop()
         except Exception, err:
             errMsg = str(err)
             errNum = errNumStopRadioStationFailed
-            
+        radioLcd.set("", "Radio", "stopped", "")
+        radioLcd.update()
+
         self.write(SnakeberryJSON().encode(Response(errNum, errMsg, rObject)))
 
 #Webservice requesthandler to recieve what information about what the radio is playing
@@ -101,13 +108,13 @@ class RadioNowPlaying(tornado.web.RequestHandler):
         rObject = None
         errNum = errNumOk
         errMsg = errMsgOk
-        
+
         try:
             rObject = Mplayer.currentProcess
-            if(rObject == None):
+            if (rObject == None):
                 rObject = MplayerProcess("Radio", "---", "")
         except Exception, err:
             errMsg = str(err)
             errNum = errNumStopRadioStationFailed
-            
+
         self.write(SnakeberryJSON().encode(Response(errNum, errMsg, rObject)))

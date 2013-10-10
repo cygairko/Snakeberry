@@ -3,7 +3,9 @@
 ## Dual-licensed under the MIT (http://www.opensource.org/licenses/mit-license.php)
 ## and the Beerware (http://en.wikipedia.org/wiki/Beerware) license.
 
-import subprocess, signal, os
+import subprocess
+import signal
+import os
 
 #Representing a running mplayer process
 #Author: Bruno Hautzenberger
@@ -19,7 +21,7 @@ class MplayerProcess():
 class Mplayer():
     #the current running mplayer process - none if no mplayer process is running
     currentProcess = None
-    
+
     #starts mplayer with a given media URI
     #stops the running mplayer process
     #Author: Bruno Hautzenberger
@@ -27,15 +29,15 @@ class Mplayer():
     def play(process):
         Mplayer.stop()
         Mplayer.currentProcess = process
-        pipe = subprocess.Popen(['mplayer',Mplayer.currentProcess.MediaURI])
+        pipe = subprocess.Popen(['mplayer', Mplayer.currentProcess.MediaURI])
         Mplayer.currentProcess.PID = pipe.pid
-    
+
     #stops mplayer
     #Author: Bruno Hautzenberger
     @staticmethod
     def stop():
         try:
-            if(Mplayer.currentProcess != None):
+            if (Mplayer.currentProcess != None):
                 os.kill(Mplayer.currentProcess.PID, signal.SIGKILL)
                 Mplayer.currentProcess = None
         except:
